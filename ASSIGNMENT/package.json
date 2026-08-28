@@ -1,0 +1,10 @@
+{
+  "name": "api-export-fullstack",
+  "version": "1.0.0",
+  "description": "Full-stack deployment configuration",
+  "scripts": {
+    "install": "npm install --prefix server && npm install --prefix client",
+    "build": "npm run build --prefix client",
+    "start": "npm start --prefix server"
+  }
+}
