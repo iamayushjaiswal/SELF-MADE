@@ -7,6 +7,7 @@ import { useEmailToast } from '../hooks/useEmailToast';
 
 const emptyCampaign = {
   name: '',
+  senderName: 'API Export Outreach',
   subject: DEFAULT_SUBJECT,
   body: DEFAULT_BODY,
   targetCountries: '',
@@ -36,6 +37,7 @@ export default function Campaigns() {
     try {
       const formData = new FormData();
       formData.append('name', form.name);
+      formData.append('senderName', form.senderName || 'API Export Outreach');
       formData.append('subject', form.subject);
       formData.append('body', form.body);
       
@@ -79,6 +81,7 @@ export default function Campaigns() {
     setEditingCampaignId(c._id);
     setForm({
       name: c.name || '',
+      senderName: c.senderName || 'API Export Outreach',
       subject: c.subject || '',
       body: c.body || '',
       targetCountries: c.targetCountries ? c.targetCountries.join(', ') : '',
@@ -160,6 +163,10 @@ export default function Campaigns() {
           <div>
             <label className="label">Campaign Name</label>
             <input className="input" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+          </div>
+          <div>
+            <label className="label">Sender Name</label>
+            <input className="input" value={form.senderName} onChange={(e) => setForm({ ...form, senderName: e.target.value })} />
           </div>
           <div>
             <label className="label">Email Subject</label>

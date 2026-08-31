@@ -30,7 +30,7 @@ function eligibleBuyerFilter(extra = {}, { strictValidation = true } = {}) {
   return filter;
 }
 
-async function sendToBuyer(buyer, subject, body, campaignId = null) {
+async function sendToBuyer(buyer, subject, body, campaign = null) {
   const personalizedSubject = personalizeTemplate(subject, buyer);
   const personalizedBody = personalizeTemplate(body, buyer);
 
@@ -38,12 +38,13 @@ async function sendToBuyer(buyer, subject, body, campaignId = null) {
     to: buyer.email,
     subject: personalizedSubject,
     html: bodyToHtml(personalizedBody),
-    attachmentPaths: campaignId ? (await Campaign.findById(campaignId))?.attachmentPaths : [],
+    attachmentPaths: campaign ? campaign.attachmentPaths : [],
+    senderName: campaign ? campaign.senderName : 'API Export Outreach',
   });
 
   await EmailLog.create({
     buyer: buyer._id,
-    campaign: campaignId,
+    campaign: campaign ? campaign._id : null,
     subject: personalizedSubject,
     body: personalizedBody,
     status: 'sent',
@@ -141,7 +142,7 @@ router.post('/:id/send', async (req, res) => {
 
     for (const buyer of buyers) {
       try {
-        const result = await sendToBuyer(buyer, campaign.subject, campaign.body, campaign._id);
+        const result = await sendToBuyer(buyer, campaign.subject, campaign.body, campaign);
         campaign.sentCount += 1;
         results.push(result);
       } catch (err) {

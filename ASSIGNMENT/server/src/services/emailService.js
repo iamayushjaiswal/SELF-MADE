@@ -53,12 +53,12 @@ function getTransporter() {
   return transporter;
 }
 
-export async function sendEmail({ to, subject, html, text, attachmentPaths = [] }) {
+export async function sendEmail({ to, subject, html, text, attachmentPaths = [], senderName = 'API Export Outreach' }) {
   const mail = getTransporter();
   const from = getSenderEmail();
 
   const mailOptions = {
-    from: `"API Export Outreach" <${from}>`,
+    from: `"${senderName}" <${from}>`,
     to,
     subject,
     html,
