@@ -96,6 +96,20 @@ export default function Campaigns() {
     setForm(emptyCampaign);
   }
 
+  function handleClone(c) {
+    setEditingCampaignId(null);
+    setForm({
+      name: `${c.name || ''} (Copy)`,
+      senderName: c.senderName || 'API Export Outreach',
+      subject: c.subject || '',
+      body: c.body || '',
+      targetCountries: c.targetCountries ? c.targetCountries.join(', ') : '',
+      targetCategories: c.targetCategories ? c.targetCategories.join(', ') : '',
+      attachments: [],
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
   async function handleSend(id) {
     if (!confirm('Send this campaign to eligible buyers via Gmail? (Max 25 at a time)')) return;
     setSendingCampaignId(id);
@@ -224,6 +238,13 @@ export default function Campaigns() {
               </p>
             </div>
             <div className="flex flex-wrap gap-2 mt-4 sm:mt-0">
+              <button
+                className="btn-secondary text-slate-600 hover:text-slate-900"
+                onClick={() => handleClone(c)}
+                title="Clone Campaign"
+              >
+                Clone
+              </button>
               <button
                 className="btn-secondary text-slate-600 hover:text-slate-900"
                 onClick={() => handleEdit(c)}
