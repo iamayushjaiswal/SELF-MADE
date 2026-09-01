@@ -62,6 +62,9 @@ router.get('/default-template', (_req, res) => {
 
 router.get('/', async (_req, res) => {
   try {
+    // Auto-fix any campaigns stuck in 'sending' state
+    await Campaign.updateMany({ status: 'sending' }, { status: 'paused' });
+    
     const campaigns = await Campaign.find().sort({ createdAt: -1 });
     res.json({ success: true, data: campaigns });
   } catch (err) {
@@ -245,10 +248,12 @@ router.get('/:id/export/sheets', async (req, res) => {
     const buyers = logs.map(log => log.buyer).filter(Boolean);
 
     const header = ['DATE', 'NAME OF THE COMPANY', 'EMAIL ADDRESS', 'WEBSITE LINK', 'RESPONSES', 'INTERN\'S FEEDBACK', 'FOLLOW UP', 'TYPE'];
-    const rows = buyers.map(b => {
+    const rows = logs.filter(log => log.buyer).map(log => {
+      const b = log.buyer;
+      
       let dateStr = '';
-      if (b.createdAt) {
-        const d = new Date(b.createdAt);
+      if (log.createdAt) {
+        const d = new Date(log.createdAt);
         const day = String(d.getDate()).padStart(2, '0');
         const month = String(d.getMonth() + 1).padStart(2, '0');
         const year = String(d.getFullYear()).slice(-2);
@@ -257,8 +262,7 @@ router.get('/:id/export/sheets', async (req, res) => {
       
       let website = b.website || '';
       if (website) {
-        const cleanUrl = website.startsWith('http') ? website : `https://${website}`;
-        website = `[${cleanUrl}](${cleanUrl})`;
+        website = website.startsWith('http') ? website : `https://${website}`;
       }
       
       let response = '';
