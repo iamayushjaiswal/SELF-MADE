@@ -21,7 +21,7 @@ function CreatePost({ onPostCreated, user }) {
         if (!text.trim() && !image) return
         
         try {
-            await axios.post("http://localhost:3000/api/posts", {
+            await axios.post("/api/posts", {
                 userId: user.id,
                 username: user.username,
                 text,

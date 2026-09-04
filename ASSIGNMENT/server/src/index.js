@@ -37,7 +37,7 @@ app.get('/api/health', (_req, res) => {
     success: true,
     message: 'API Export server is running',
     gmailConfigured: isGmailConfigured(),
-    hunterConfigured: Boolean(process.env.HUNTER_API_KEY),
+    snovConfigured: Boolean(process.env.SNOV_CLIENT_ID && process.env.SNOV_CLIENT_SECRET),
     genaiConfigured: Boolean(process.env.GENAI_API_KEY),
   });
 });

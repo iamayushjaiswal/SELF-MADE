@@ -2,7 +2,7 @@ import express from 'express';
 import Buyer from '../models/Buyer.js';
 import { Parser } from 'json2csv';
 import { validateEmail } from '../services/validationService.js';
-import { discoverBuyers, discoverFromHunter, classifyWithAI } from '../services/discoveryService.js';
+import { discoverBuyers, discoverFromSnov, classifyWithAI } from '../services/discoveryService.js';
 import { logActivity } from '../services/activityService.js';
 import { parseBuyerCsv, CSV_TEMPLATE } from '../services/csvImportService.js';
 import { getDefaultTemplate } from '../config/defaultOutreach.js';
@@ -94,7 +94,7 @@ router.post('/', async (req, res) => {
 
 router.post('/discover', async (req, res) => {
   try {
-    const { category, country, limit, market, domain, autoEmail = false } = req.body;
+    const { category, country, city, limit, market, domain, autoEmail = false } = req.body;
     let discovered = [];
     
     let cancelled = false;
@@ -102,13 +102,13 @@ router.post('/discover', async (req, res) => {
       cancelled = true;
     });
 
-    if (domain && process.env.HUNTER_API_KEY) {
-      const hunterResults = await discoverFromHunter(domain, process.env.HUNTER_API_KEY);
-      if (hunterResults?.length) discovered = hunterResults;
+    if (domain && process.env.SNOV_CLIENT_ID && process.env.SNOV_CLIENT_SECRET) {
+      const snovResults = await discoverFromSnov(domain, process.env.SNOV_CLIENT_ID, process.env.SNOV_CLIENT_SECRET);
+      if (snovResults?.length) discovered = snovResults;
     }
 
     if (!discovered.length) {
-      discovered = await discoverBuyers({ category, country, limit: Number(limit) || 10, market }, () => cancelled);
+      discovered = await discoverBuyers({ category, country, city, limit: Number(limit) || 10, market }, () => cancelled);
     }
 
     const saved = [];
@@ -136,6 +136,7 @@ router.post('/discover', async (req, res) => {
     await logActivity('buyers_discovered', `Discovered ${saved.length} buyers (${skipped} skipped)`, {
       category,
       country,
+      city,
       saved: saved.length,
       skipped,
     });

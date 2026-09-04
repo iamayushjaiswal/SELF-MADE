@@ -6,8 +6,7 @@ import { useEmailToast } from '../hooks/useEmailToast';
 const CATEGORIES = ['textiles', 'electronics', 'agriculture', 'handicrafts', 'machinery', 'candle holders'];
 
 export default function Discover() {
-  const [form, setForm] = useState({ category: 'textiles', country: '', limit: 10, market: '', domain: '' });
-  const [autoSend, setAutoSend] = useState(true);
+  const [form, setForm] = useState({ category: 'textiles', country: '', city: '', limit: 10, market: '', domain: '' });
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
@@ -25,17 +24,13 @@ export default function Discover() {
     setResult(null);
     setPhase('discovering');
     try {
-      const res = await api.post('/buyers/discover', { ...form, autoEmail: autoSend }, {
+      const res = await api.post('/buyers/discover', form, {
         signal: abortControllerRef.current.signal
       });
 
       setResult(res.data);
 
-      if (autoSend && res.data.emailResult) {
-        showToast(`Discovered ${res.data.saved} · emailed ${res.data.emailResult.sent}`);
-      } else if (autoSend && res.data.saved > 0 && !res.data.emailResult) {
-        showToast('Buyers saved but Gmail is not configured', 'error');
-      } else if (res.data.saved > 0) {
+      if (res.data.saved > 0) {
         showToast(`Discovered ${res.data.saved} new buyers`);
       }
     } catch (err) {
@@ -63,7 +58,7 @@ export default function Discover() {
       <EmailSentToast show={toast.show} message={toast.message} tone={toast.tone} leaving={toast.leaving} />
       <div>
         <h2 className="text-2xl font-bold">Discover Genuine Buyers</h2>
-        <p className="text-slate-600">Find real companies and contacts via SerpApi (Google Search) and Hunter.io. Requires <code className="bg-slate-100 px-1 rounded">SERP_API_KEY</code> and <code className="bg-slate-100 px-1 rounded">HUNTER_API_KEY</code> in your server <code>.env</code> file.</p>
+        <p className="text-slate-600">Find real companies and contacts via SerpApi (Google Search) and Apollo.io. Requires <code className="bg-slate-100 px-1 rounded">SERP_API_KEY</code> and <code className="bg-slate-100 px-1 rounded">APOLLO_API_KEY</code> in your server <code>.env</code> file.</p>
       </div>
 
       <form onSubmit={handleDiscover} className="card grid gap-4 md:grid-cols-2">
@@ -78,6 +73,10 @@ export default function Discover() {
           <input className="input" placeholder="e.g. Germany, USA" value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} />
         </div>
         <div>
+          <label className="label">City / District (optional)</label>
+          <input className="input" placeholder="e.g. Berlin, Bavaria" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
+        </div>
+        <div>
           <label className="label">Market / Segment</label>
           <input className="input" placeholder="e.g. EU textiles wholesale" value={form.market} onChange={(e) => setForm({ ...form, market: e.target.value })} />
         </div>
@@ -87,21 +86,17 @@ export default function Discover() {
         </div>
         <div className="md:col-span-2">
           <label className="label">Specific Company Domain (optional)</label>
-          <p className="mb-1 text-xs text-slate-500">If provided, skips Google search and searches only this domain via Hunter.io.</p>
+          <p className="mb-1 text-xs text-slate-500">If provided, skips Google search and searches only this domain via Apollo.io.</p>
           <input className="input" placeholder="e.g. acme.com " value={form.domain} onChange={(e) => setForm({ ...form, domain: e.target.value })} />
         </div>
         <div className="md:col-span-2 flex flex-wrap items-center gap-4">
-          <label className="flex items-center gap-2 text-sm text-slate-700">
-            <input type="checkbox" checked={autoSend} onChange={(e) => setAutoSend(e.target.checked)} className="rounded" />
-            Automatically email discovered buyers (personalized — no manual editing)
-          </label>
           <button type="submit" className={`btn-primary ${loading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={loading}>
             {loading ? (
               <span className="inline-flex items-center gap-2">
                 <SendSpinner className="h-4 w-4" />
-                {phase === 'sending' ? 'Sending emails...' : 'Discovering buyers...'}
+                Discovering buyers...
               </span>
-            ) : autoSend ? 'Discover & Auto Email' : 'Discover Buyers via API'}
+            ) : 'Discover Buyers via API'}
           </button>
           {loading && (
             <button type="button" onClick={handleStop} className="btn-secondary text-rose-600 hover:bg-rose-50 border-rose-200">

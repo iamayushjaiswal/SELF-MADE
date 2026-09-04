@@ -21,7 +21,7 @@ Export lead generation platform for the **API EXPORT** internship assessment. Di
 | Backend | Node.js, Express |
 | Database | MongoDB, Mongoose |
 | Email | Nodemailer (Gmail SMTP) |
-| Optional APIs | Hunter.io, OpenAI |
+| Optional APIs | Snov.io, OpenAI |
 
 ## Setup
 

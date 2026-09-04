@@ -10,7 +10,7 @@ function PostCard({ post, user, onPostUpdated }) {
 
     const handleLike = async () => {
         try {
-            await axios.post(`http://localhost:3000/api/posts/${post._id}/like`, { userId: user.id })
+            await axios.post(`/api/posts/${post._id}/like`, { userId: user.id })
             onPostUpdated()
         } catch (error) {
             console.error("Error liking post", error)
@@ -20,7 +20,7 @@ function PostCard({ post, user, onPostUpdated }) {
     const handleComment = async () => {
         if (!commentText.trim()) return
         try {
-            await axios.post(`http://localhost:3000/api/posts/${post._id}/comment`, {
+            await axios.post(`/api/posts/${post._id}/comment`, {
                 username: user.username,
                 text: commentText
             })
